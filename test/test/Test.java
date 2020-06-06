@@ -3,7 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package taller1_progconcurrente;
+package test;
+
+import taller1_progconcurrente.DivisorConc;
 
 /**
  *
@@ -17,8 +19,7 @@ public class Test {
     public static void main(String[] args) {
        
         
-        long numDiv = DivisorConc.numOfPosDivisors(19876543937L, 20);
-        
+        long numDiv = DivisorConc.numOfPosDivisors(1987654393L, 2);
         System.out.println("Numero de divisores: "+numDiv);
         
         

@@ -34,7 +34,7 @@ public class DivisorConc implements Runnable {
     public static long numOfPosDivisors(long num, int numThreads) {
 
         if (num > 1 && numThreads > 0) {
-            return DivisorConc.makeThread(num, numThreads);
+            return DivisorConc.makeThread(num, numThreads)+1;
         }
         return 0;
 
@@ -43,15 +43,23 @@ public class DivisorConc implements Runnable {
     /*Important */
     private static long makeThread(long num, int numThreads) {
 
-        long range = searchRange(num, numThreads);
+        long limit =  num / 2;
+        
+        if(limit%2==0){
+            limit++;
+        }
+        
 
+        long range = searchRange(limit, numThreads);
+        System.out.println("limit: "+limit + " range: "+range);
+        
         DivisorConc[] tasks = new DivisorConc[numThreads];
         Thread[] threads = new Thread[numThreads];
 
         int pos = 0;
         long rangeA = 0;
         long rangeB = 0;
-        for (int i = 0; i < num; i += range) {
+        for (int i = 0; i <= limit; i += range) {
             if (pos < numThreads) {
 
                 if (pos == 0) {
@@ -59,8 +67,8 @@ public class DivisorConc implements Runnable {
                     rangeA = 1;
                     rangeB += range;
                     tasks[pos] = new DivisorConc(rangeA, rangeB, num, pos);
-//                    System.out.println("Task # " + pos);
-//                    System.out.println("Begin: " + rangeA + " End: " + rangeB);
+                    System.out.println("Task # " + pos);
+                    System.out.println("Begin: " + rangeA + " End: " + rangeB);
 
                     rangeA = rangeB;
 
@@ -68,20 +76,19 @@ public class DivisorConc implements Runnable {
 
                     rangeA++;
 
-                    if (pos == numThreads - 1 && (rangeA + range < num)) {
+                    if (pos == numThreads - 1 && (rangeA + range < limit)) {
 
-                        rangeB = num;
+                        rangeB = limit;
                         tasks[pos] = new DivisorConc(rangeA, rangeB, num, pos);
-//                        System.out.println("Task # " + pos);
-//                        System.out.println("Begin: " + rangeA + " End: " + rangeB);
+                        System.out.println("Task # " + pos);
+                        System.out.println("Begin: " + rangeA + " End: " + rangeB);
 
                     } else {
                         rangeB += range;
                         tasks[pos] = new DivisorConc(rangeA, rangeB, num, pos);
 
-//                        System.out.println("Task # " + pos);
-//                        System.out.println("Begin: " + rangeA + " End: " + rangeB);
-
+                        System.out.println("Task # " + pos);
+                        System.out.println("Begin: " + rangeA + " End: " + rangeB);
                         rangeA = rangeB;
                     }
                 }
@@ -92,10 +99,10 @@ public class DivisorConc implements Runnable {
         }
 
         for (int i = 0; i < threads.length; i++) {
+            threads[i] = new Thread();
             threads[i].setPriority(Thread.MAX_PRIORITY);
             threads[i] = tasks[i].start();
-            
-             
+
         }
 
         //Espera a que termine cada una de las tareas
@@ -119,19 +126,17 @@ public class DivisorConc implements Runnable {
 
     @Override
     public void run() {
-        
-        
+
         for (long k = from; k <= to; k++) {
 
-            System.out.println("Soy: "+ getCOD() + " --> voy en: "+ k);
-            if (num % k == 0) {
+            //  System.out.println("Soy: "+ getCOD() + " --> voy en: "+ k);
+            if (this.num % k == 0) {
                 this.count++;
-
+               System.out.println("numero: "+num+" divisor: "+k);
             }
         }
     }
 
-    
     public Thread start() {
 
         if (theThread == null) {
@@ -150,7 +155,6 @@ public class DivisorConc implements Runnable {
         return COD;
     }
 
-    
     //Buscador de rangos
     public static long searchRange(long num, int numThread) {
 
