@@ -1,175 +1,80 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package taller1_progconcurrente;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  *
  * @author LeonardoGonz
  */
-public class DivisorConc implements Runnable {
+public class DivisorConc {
 
-    private long from;
-    private long to;
-    private Thread theThread = null;
-    private int count;
-    private long num;
-    private int COD;
-
-    public DivisorConc(long from, long to, long num, int cod) {
-        this.from = from;
-        this.to = to;
-        this.num = num;
-        this.COD = cod;
-    }
-
-    public DivisorConc() {
-    }
-
+    ///Función encargada 
     public static long numOfPosDivisors(long num, int numThreads) {
 
-        if (num > 1 && numThreads > 0) {
-            return DivisorConc.makeThread(num, numThreads)+1;
+        if (num > 1 && numThreads > 1) {
+            return DivisorConc.makeThread(num, numThreads) + 1;
         }
-        return 0;
+        return 1;
 
     }
 
-    /*Important */
+    /*Programa de forma concurrente y distruida para hallar el número de divisores del número ingesado*/
     private static long makeThread(long num, int numThreads) {
 
-        long limit =  num / 2;
-        
-        if(limit%2==0){
-            limit++;
-        }
-        
+        long range = searchRange(num, numThreads);
 
-        long range = searchRange(limit, numThreads);
-        System.out.println("limit: "+limit + " range: "+range);
-        
-        DivisorConc[] tasks = new DivisorConc[numThreads];
-        Thread[] threads = new Thread[numThreads];
+        Task[] tasks = tasksThread(range, numThreads, num);
 
-        int pos = 0;
-        long rangeA = 0;
-        long rangeB = 0;
-        for (int i = 0; i <= limit; i += range) {
-            if (pos < numThreads) {
-
-                if (pos == 0) {
-
-                    rangeA = 1;
-                    rangeB += range;
-                    tasks[pos] = new DivisorConc(rangeA, rangeB, num, pos);
-                    System.out.println("Task # " + pos);
-                    System.out.println("Begin: " + rangeA + " End: " + rangeB);
-
-                    rangeA = rangeB;
-
-                } else {
-
-                    rangeA++;
-
-                    if (pos == numThreads - 1 && (rangeA + range < limit)) {
-
-                        rangeB = limit;
-                        tasks[pos] = new DivisorConc(rangeA, rangeB, num, pos);
-                        System.out.println("Task # " + pos);
-                        System.out.println("Begin: " + rangeA + " End: " + rangeB);
-
-                    } else {
-                        rangeB += range;
-                        tasks[pos] = new DivisorConc(rangeA, rangeB, num, pos);
-
-                        System.out.println("Task # " + pos);
-                        System.out.println("Begin: " + rangeA + " End: " + rangeB);
-                        rangeA = rangeB;
-                    }
-                }
-
-                pos++;
-            }
-
-        }
-
-        for (int i = 0; i < threads.length; i++) {
-            threads[i] = new Thread();
-            threads[i].setPriority(Thread.MAX_PRIORITY);
-            threads[i] = tasks[i].start();
-
-        }
-
-        //Espera a que termine cada una de las tareas
-        for (Thread thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        for (int i = 0; i < tasks.length; i++) {
+            tasks[i].start();
         }
 
         long numOfPosDivisors = 0;
 
-        for (int i = 0; i < tasks.length; i++) {
-            numOfPosDivisors += tasks[i].getCount();
+        //Espera a que termine cada una de las tareas
+        for (Task task : tasks) {
+            try {
+                task.getTheThread().join();
+                //Suma la cantidad de divisores encontrados de cada hilo
+                numOfPosDivisors += task.getCount();
+            } catch (InterruptedException ex) {
+
+            }
+
         }
 
         return numOfPosDivisors;
 
     }
 
-    @Override
-    public void run() {
+    //Asigna a cada hilo de forma distribuida los calculos a realizar cada uno
+    public static Task[] tasksThread(long rangeFragment, int numThreads, long num) {
 
-        for (long k = from; k <= to; k++) {
+    
+        long numRange = num / 2L / rangeFragment;
 
-            //  System.out.println("Soy: "+ getCOD() + " --> voy en: "+ k);
-            if (this.num % k == 0) {
-                this.count++;
-               System.out.println("numero: "+num+" divisor: "+k);
+        if (rangeFragment * numRange < num / 2L) {
+            numRange++;
+        }
+
+        Task[] tasks = new Task[numThreads];
+
+        long begin = 1L;
+        long end = rangeFragment;
+
+        for (int i = 0; i < tasks.length; i++) {
+
+            tasks[i] = new Task(begin, end, num, (i + 1));
+            begin += rangeFragment;
+            end += rangeFragment;
+
+            if (end > num / 2L) {
+                end = num / 2L;
             }
         }
+        return tasks;
     }
 
-    public Thread start() {
-
-        if (theThread == null) {
-            this.theThread = new Thread(this);
-            theThread.start();
-        }
-        return theThread;
-
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public int getCOD() {
-        return COD;
-    }
-
-    //Buscador de rangos
+    //Se encarga de calcular el rango de tareas para cada hilo
     public static long searchRange(long num, int numThread) {
-
-        int range = 2;
-        float numDiv = numDiv = (float) num / range;
-
-        while (numDiv > numThread) {
-            range++;
-            numDiv = (float) num / range;
-        }
-
-        if (num % range > 0) {
-            range--;
-        }
-
+        long range = num / 2L / numThread;
         return range;
     }
 

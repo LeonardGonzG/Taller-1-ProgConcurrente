@@ -17,12 +17,17 @@ public class Test {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-       
-        
-        long numDiv = DivisorConc.numOfPosDivisors(1987654393L, 2);
-        System.out.println("Numero de divisores: "+numDiv);
-        
-        
+
+        long startTime = System.currentTimeMillis();
+
+        long numDiv = DivisorConc.numOfPosDivisors(1987654393L, 20);
+        long endTime = System.currentTimeMillis();
+        System.out.println("Numero de divisores: " + numDiv);
+
+        long diffTime = (endTime - startTime);
+
+        System.out.println("Time: " + diffTime / 1000f);
+
     }
-    
+
 }

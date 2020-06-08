@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package taller1_progconcurrente;
 
 /**
@@ -35,23 +30,4 @@ public class Divisor {
         return 2 + numOfPosDivisors(num, 2, num / 2);
     }
 
-    /*
-    public int numOfPosDivisors(int num, int from, int to) {
-        int count = 0;
-
-        for (int k = from; k <= to; k++) {
-            if (num % k == 0) {
-                count++;
-            }
-
-        }
-
-        return count;
-    }
-    
-    
-    public int numOfPosDivisors(int num) {
-        return numOfPosDivisors(num, 1, num / 2);
-    }
-     */
 }
